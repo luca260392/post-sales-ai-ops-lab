@@ -1,0 +1,1255 @@
+{
+  "name": "01 - Lead-to-Client Onboarding",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "160a2c8e-b944-4ad8-ac08-e1c399652ce1",
+      "name": "Webhook",
+      "webhookId": "249c9710-a629-4c16-a44d-c3fbc693e095"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Sei un assistente per comunicazioni aziendali di un SaaS B2B.\nScrivi in italiano, tono professionale ma cordiale.\nNon usare markdown, solo testo piano."
+            },
+            {
+              "content": "=Genera una email di benvenuto per un nuovo cliente con queste caratteristiche:\n- Nome: {{ $json.name }}\n- Piano acquistato: {{ $json.plan }}\nL'email deve: salutare il cliente, spiegare i prossimi passi, offrire supporto.\nLunghezza: 150-200 parole."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        688,
+        -128
+      ],
+      "id": "e0049a04-8eab-460c-a4fe-471f4a8607ba",
+      "name": "OpenAI - Welcome Email",
+      "retryOnFail": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "tRZfk6G66trkA1hj",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e0d96f80-ef91-4a22-bf92-4b5e1da358f8",
+              "leftValue": "=String",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "37960b15-2168-4224-94a6-8952ff56ab17",
+      "name": "Email presente?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4959a0b-3cca-4641-864e-ea227d8d9a8d",
+              "name": "status",
+              "value": "failed",
+              "type": "string"
+            },
+            {
+              "id": "b98ade76-3931-490e-9e84-5f400d85b831",
+              "name": "notes",
+              "value": "Email mancante nel payload",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        80
+      ],
+      "id": "1cfb5e33-4160-45e2-98ae-f0818fd3e5f5",
+      "name": "Set - Errore Email Mancante"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appyidCBRAJOnWXj6",
+          "mode": "list",
+          "cachedResultName": "PostSalesOpsLab",
+          "cachedResultUrl": "https://airtable.com/appyidCBRAJOnWXj6"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbloznYbr103DOtrU",
+          "mode": "list",
+          "cachedResultName": "Automation Logs",
+          "cachedResultUrl": "https://airtable.com/appyidCBRAJOnWXj6/tbloznYbr103DOtrU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ai_skipped": false,
+            "classification_error": false,
+            "workflow": "onboarding",
+            "status": "failed",
+            "timestamp": "={{ $now.toISO() }}",
+            "notes": "Payload ricevuto senza email"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "onboarding",
+                  "value": "onboarding"
+                },
+                {
+                  "name": "triage",
+                  "value": "triage"
+                },
+                {
+                  "name": "retention",
+                  "value": "retention"
+                },
+                {
+                  "name": "monitoring",
+                  "value": "monitoring"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "success",
+                  "value": "success"
+                },
+                {
+                  "name": "partial",
+                  "value": "partial"
+                },
+                {
+                  "name": "failed",
+                  "value": "failed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "payload_summary",
+              "displayName": "payload_summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_skipped",
+              "displayName": "ai_skipped",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "classification_error",
+              "displayName": "classification_error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "related_client",
+              "displayName": "related_client",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "related_task",
+              "displayName": "related_task",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "related_ticket",
+              "displayName": "related_ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "run_tags",
+              "displayName": "run_tags",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "scheduled",
+                  "value": "scheduled"
+                },
+                {
+                  "name": "manual_run",
+                  "value": "manual_run"
+                },
+                {
+                  "name": "auto_recovery",
+                  "value": "auto_recovery"
+                },
+                {
+                  "name": "escalated",
+                  "value": "escalated"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        288
+      ],
+      "id": "ac4bb0ee-afd1-4d3b-b154-2cc2d675832e",
+      "name": "Airtable - Log Errore",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FUbj4USSIDD5qEC9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3481c16a-2039-4227-89c2-81cf2443e585",
+              "name": "name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "e2545c99-7101-4225-aaa7-8c432845fd83",
+              "name": "email ",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "7daca022-bcf9-405a-a2b6-c8ed48f8d1f6",
+              "name": "plan",
+              "value": "={{ $json.body.plan }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "abee1f7f-3588-4fb4-b0f9-00c2ba7cfd00",
+      "name": "Normalizza Payload"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "da41c6bd-97ed-402b-82a7-8a9fe92b46ff",
+              "leftValue": "={{ $json.output[0].content[0].text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        -128
+      ],
+      "id": "e1e2f3e3-a671-4a86-81bf-33952d1ba635",
+      "name": "OpenAI ha risposto bene?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a71f8666-554a-407f-93af-de8d99ac8e12",
+              "name": "name",
+              "value": "={{ $('Normalizza Payload').first().json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "9358ebec-b57c-459b-826c-12677f2d1445",
+              "name": "email",
+              "value": "={{ $('Normalizza Payload').first().json['email '] }}",
+              "type": "string"
+            },
+            {
+              "id": "92511562-b801-4d32-828d-a12ccb97e897",
+              "name": "plan",
+              "value": "={{ $('Normalizza Payload').first().json.plan }}",
+              "type": "string"
+            },
+            {
+              "id": "f9b8e200-8026-49a5-a787-334f2b10988c",
+              "name": "emailBody",
+              "value": "={{ $json.output[0].content[0].text }}",
+              "type": "string"
+            },
+            {
+              "id": "0018f31d-52fc-4ce3-bf43-9487927ac9c8",
+              "name": "ai_skipped",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1280,
+        -240
+      ],
+      "id": "f30b825d-db02-4123-af2a-ac817dc9b59d",
+      "name": "Set - Email da AI"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appyidCBRAJOnWXj6"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl3zG1wXQUuDL9Cu",
+          "mode": "list",
+          "cachedResultName": "Clients",
+          "cachedResultUrl": "https://airtable.com/appyidCBRAJOnWXj6/tbl3zG1wXQUuDL9Cu"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "reminder_count": 0,
+            "name": "={{ $('Normalizza Payload').item.json.name }}",
+            "email": "={{ $('Normalizza Payload').item.json.email }}",
+            "plan": "={{ $('Normalizza Payload').item.json.plan }}",
+            "status": "active",
+            "created_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "plan",
+              "displayName": "plan",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "free",
+                  "value": "free"
+                },
+                {
+                  "name": "starter",
+                  "value": "starter"
+                },
+                {
+                  "name": "pro",
+                  "value": "pro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "active",
+                  "value": "active"
+                },
+                {
+                  "name": "churned",
+                  "value": "churned"
+                },
+                {
+                  "name": "churn_risk",
+                  "value": "churn_risk"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_activity",
+              "displayName": "last_activity",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_reminder_sent",
+              "displayName": "last_reminder_sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "reminder_count",
+              "displayName": "reminder_count",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tickets",
+              "displayName": "Tickets",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tasks",
+              "displayName": "Tasks",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Automation Logs",
+              "displayName": "Automation Logs",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1744,
+        -128
+      ],
+      "id": "4dba12d1-ad2b-40ba-a3c2-6c9fdeb22863",
+      "name": "upsert client",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FUbj4USSIDD5qEC9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appyidCBRAJOnWXj6",
+          "mode": "list",
+          "cachedResultName": "PostSalesOpsLab",
+          "cachedResultUrl": "https://airtable.com/appyidCBRAJOnWXj6"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWlWRdNAc2DBcVE",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appyidCBRAJOnWXj6/tblWlWRdNAc2DBcVE"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "completed": false,
+            "type": "onboarding",
+            "due_date": "={{ $now.plus(3, 'days').toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "onboarding",
+                  "value": "onboarding"
+                },
+                {
+                  "name": "follow_up",
+                  "value": "follow_up"
+                },
+                {
+                  "name": "manual_review",
+                  "value": "manual_review"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "due_date",
+              "displayName": "due_date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "completed",
+              "displayName": "completed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Automation Logs",
+              "displayName": "Automation Logs",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1952,
+        -128
+      ],
+      "id": "4d3f9f32-f752-45e5-9fc8-df9470fb3f0a",
+      "name": "crea task onboarding",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FUbj4USSIDD5qEC9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9591377a-2a3d-46dd-ab6d-d720b081e85c",
+              "name": "name",
+              "value": "={{ $('Normalizza Payload').first().json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "6bb7feda-915d-464b-ba70-ba3fa4d777e0",
+              "name": "email",
+              "value": "={{ $('Normalizza Payload').first().json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "9269a7a5-48b5-4381-b69b-2a6c05623788",
+              "name": "plan",
+              "value": "={{ $('Normalizza Payload').first().json.plan }}",
+              "type": "string"
+            },
+            {
+              "id": "9415d113-d66f-4303-baa1-ffc4fc83ded3",
+              "name": "emailBody",
+              "value": "testo statico del template di fallback",
+              "type": "string"
+            },
+            {
+              "id": "75e0ca51-d61a-42a4-a4f8-3a08a030e838",
+              "name": "ai_skipped",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1280,
+        -48
+      ],
+      "id": "8f71051b-0058-48d6-be24-d23873e67a28",
+      "name": "Set - Email Fallback"
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@postsaleslab.dev",
+        "toEmail": "={{ $json.email }}",
+        "subject": "=Benvenuto, {{ $json.name }}!",
+        "emailFormat": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1536,
+        -128
+      ],
+      "id": "492cb6ab-a1f4-459f-9126-d83f2bf36627",
+      "name": "Send Email (SMTP)",
+      "webhookId": "f01645f0-97f2-4db2-a1a0-e9733a3c6f22",
+      "credentials": {
+        "smtp": {
+          "id": "Neh9o4u52hEE4Zfh",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appyidCBRAJOnWXj6",
+          "mode": "list",
+          "cachedResultName": "PostSalesOpsLab",
+          "cachedResultUrl": "https://airtable.com/appyidCBRAJOnWXj6"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbloznYbr103DOtrU",
+          "mode": "list",
+          "cachedResultName": "Automation Logs",
+          "cachedResultUrl": "https://airtable.com/appyidCBRAJOnWXj6/tbloznYbr103DOtrU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ai_skipped": "={{ $('OpenAI - Welcome Email').first().json.output?.[0]?.content?.[0]?.text ? false : true }}",
+            "classification_error": false,
+            "workflow": "onboarding",
+            "timestamp": "={{ $now.toISO() }}",
+            "status": "={{ $('OpenAI - Welcome Email').first().json.output?.[0]?.content?.[0]?.text ? 'success' : 'partial' }}",
+            "payload_summary": "={{ $('Normalizza Payload').first().json.email }} | piano: {{ $('Normalizza Payload').first().json.plan }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "workflow",
+              "displayName": "workflow",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "onboarding",
+                  "value": "onboarding"
+                },
+                {
+                  "name": "triage",
+                  "value": "triage"
+                },
+                {
+                  "name": "retention",
+                  "value": "retention"
+                },
+                {
+                  "name": "monitoring",
+                  "value": "monitoring"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "success",
+                  "value": "success"
+                },
+                {
+                  "name": "partial",
+                  "value": "partial"
+                },
+                {
+                  "name": "failed",
+                  "value": "failed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "payload_summary",
+              "displayName": "payload_summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_skipped",
+              "displayName": "ai_skipped",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "classification_error",
+              "displayName": "classification_error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "related_client",
+              "displayName": "related_client",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "related_task",
+              "displayName": "related_task",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "related_ticket",
+              "displayName": "related_ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "run_tags",
+              "displayName": "run_tags",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "scheduled",
+                  "value": "scheduled"
+                },
+                {
+                  "name": "manual_run",
+                  "value": "manual_run"
+                },
+                {
+                  "name": "auto_recovery",
+                  "value": "auto_recovery"
+                },
+                {
+                  "name": "escalated",
+                  "value": "escalated"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2192,
+        -128
+      ],
+      "id": "eaf25b9c-9a71-4dd0-aa40-4bd8cc5171c7",
+      "name": "Airtable (crea log)",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FUbj4USSIDD5qEC9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalizza Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email presente?": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set - Errore Email Mancante",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Airtable - Log Errore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizza Payload": {
+      "main": [
+        [
+          {
+            "node": "Email presente?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "OpenAI ha risposto bene?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI ha risposto bene?": {
+      "main": [
+        [
+          {
+            "node": "Set - Email da AI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set - Email Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Email da AI": {
+      "main": [
+        [
+          {
+            "node": "Send Email (SMTP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upsert client": {
+      "main": [
+        [
+          {
+            "node": "crea task onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "crea task onboarding": {
+      "main": [
+        [
+          {
+            "node": "Airtable (crea log)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Email Fallback": {
+      "main": [
+        [
+          {
+            "node": "Send Email (SMTP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email (SMTP)": {
+      "main": [
+        [
+          {
+            "node": "upsert client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4be455d3-be91-4625-a045-bdc466bab098",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1c76ac4effb90f6a9f17437013c05c5c407bdfa932fdbd4680157329b124ca8c"
+  },
+  "nodeGroups": [],
+  "id": "cX8ngCkOI30xGwFF",
+  "tags": []
+}
