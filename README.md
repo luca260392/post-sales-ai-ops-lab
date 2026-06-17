@@ -24,3 +24,9 @@ Laboratorio per l'automazione delle operazioni post-vendita tramite n8n, Airtabl
 - Docker e Docker Compose
 - Account Airtable
 - API key del provider AI utilizzato
+
+
+
+
+
+http://localhost:5678/webhook-test/onboarding
